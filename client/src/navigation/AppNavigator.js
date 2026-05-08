@@ -7,12 +7,14 @@ import { colors } from '../theme/colors';
 
 import AuthNavigator from './AuthNavigator';
 import TabNavigator from './TabNavigator';
+import ChangePasswordOnFirstLogin from '../screens/auth/ChangePasswordOnFirstLogin';
 
 // Appointment screens (pushed on top of tabs)
 import CreateAppointment from '../screens/appointments/CreateAppointment';
 import AppointmentDetails from '../screens/appointments/AppointmentDetails';
 import RescheduleAppointment from '../screens/appointments/RescheduleAppointment';
 import AppointmentHistory from '../screens/appointments/AppointmentHistory';
+import RegisterScreen from '../screens/auth/RegisterScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,6 +34,8 @@ const AppNavigator = () => {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!user ? (
           <Stack.Screen name="Auth" component={AuthNavigator} />
+        ) : user.mustChangePassword ? (
+          <Stack.Screen name="FirstLogin" component={ChangePasswordOnFirstLogin} />
         ) : (
           <>
             <Stack.Screen name="Main">
@@ -51,6 +55,10 @@ const AppNavigator = () => {
                 headerTintColor: colors.textPrimary }} />
             <Stack.Screen name="AppointmentHistory" component={AppointmentHistory}
               options={{ headerShown: true, title: 'History',
+                headerStyle: { backgroundColor: colors.bgCard },
+                headerTintColor: colors.textPrimary }} />
+            <Stack.Screen name="Register" component={RegisterScreen}
+              options={{ headerShown: true, title: 'Create Account',
                 headerStyle: { backgroundColor: colors.bgCard },
                 headerTintColor: colors.textPrimary }} />
           </>

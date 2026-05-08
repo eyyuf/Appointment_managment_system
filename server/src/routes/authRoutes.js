@@ -1,10 +1,11 @@
 const router = require('express').Router();
 const c = require('../controllers/authController');
 const { authenticate } = require('../middleware/authMiddleware');
+const { authorize } = require('../middleware/roleMiddleware');
 const { validate } = require('../middleware/validationMiddleware');
 const { registerValidator, loginValidator, changePasswordValidator } = require('../validators/authValidator');
 
-router.post('/register', registerValidator, validate, c.register);
+router.post('/register', authenticate, authorize('ADMIN'), registerValidator, validate, c.register);
 router.post('/login', loginValidator, validate, c.login);
 router.post('/logout', authenticate, c.logout);
 router.get('/me', authenticate, c.getMe);

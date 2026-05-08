@@ -56,6 +56,7 @@ model User {
   department          String?
   fcmToken            String?   @map("fcm_token")
   isActive            Boolean   @default(true) @map("is_active")
+  mustChangePassword  Boolean   @default(true) @map("must_change_password")
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @updatedAt @map("updated_at")
 

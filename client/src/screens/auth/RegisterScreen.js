@@ -39,6 +39,9 @@ const RegisterScreen = ({ navigation }) => {
     setLoading(true);
     try {
       await register({ ...form, email: form.email.trim().toLowerCase() });
+      Alert.alert('Success', 'Institutional account created successfully', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]);
     } catch (err) {
       Alert.alert('Registration Failed', err.message || 'Something went wrong');
     } finally {
@@ -51,17 +54,14 @@ const RegisterScreen = ({ navigation }) => {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.back}>
-              <Text style={styles.backText}>← Back</Text>
-            </TouchableOpacity>
             <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.sub}>Join the university appointment system</Text>
+            <Text style={styles.sub}>Provision a new institutional account</Text>
           </View>
 
           <View style={styles.card}>
             <AppInput label="Full Name" value={form.fullName} onChangeText={set('fullName')} placeholder="Dr. John Doe" error={errors.fullName} />
             <AppInput label="Email" value={form.email} onChangeText={set('email')} placeholder="you@university.edu" keyboardType="email-address" error={errors.email} />
-            <AppInput label="Password" value={form.password} onChangeText={set('password')} placeholder="Min 8 chars" secureTextEntry={!showPw} rightIcon={showPw ? '🙈' : '👁️'} onRightIconPress={() => setShowPw((v) => !v)} error={errors.password} />
+            <AppInput label="Temporary Password" value={form.password} onChangeText={set('password')} placeholder="Min 8 chars" secureTextEntry={!showPw} rightIcon={showPw ? '🙈' : '👁️'} onRightIconPress={() => setShowPw((v) => !v)} error={errors.password} />
             <AppInput label="Phone (optional)" value={form.phone} onChangeText={set('phone')} placeholder="+254700000000" keyboardType="phone-pad" />
             <AppInput label="Department (optional)" value={form.department} onChangeText={set('department')} placeholder="Computer Science" />
 
@@ -81,13 +81,6 @@ const RegisterScreen = ({ navigation }) => {
             </View>
 
             <AppButton title="Create Account" onPress={handleRegister} loading={loading} style={{ marginTop: 8 }} />
-
-            <View style={styles.loginRow}>
-              <Text style={styles.loginText}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.loginLink}>Sign In</Text>
-              </TouchableOpacity>
-            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

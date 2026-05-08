@@ -41,6 +41,7 @@ const generateTokenPair = (user) => {
     id: user.id,
     email: user.email,
     role: user.role,
+    mustChangePassword: user.mustChangePassword,
   };
   return {
     accessToken: generateAccessToken(payload),

@@ -54,10 +54,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const register = useCallback(async (data) => {
-    const res = await authService.register(data);
-    const { user: userData, accessToken } = res.data.data;
-    await saveSession(userData, accessToken);
-    return userData;
+    await authService.register(data);
   }, []);
 
   const logout = useCallback(async () => {

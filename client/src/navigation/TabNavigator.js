@@ -12,6 +12,7 @@ import LeaderDashboard from '../screens/dashboard/LeaderDashboard';
 import CalendarScreen from '../screens/calendar/CalendarScreen';
 import NotificationScreen from '../screens/notifications/NotificationScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+import AdminDashboard from '../screens/dashboard/AdminDashboard';
 
 const Tab = createBottomTabNavigator();
 
@@ -36,6 +37,7 @@ const TabNavigator = ({ userRole }) => {
   const DashboardComponent =
     dashType === 'secretary' ? SecretaryDashboard :
     dashType === 'leader' ? LeaderDashboard :
+    dashType === 'admin' ? AdminDashboard :
     StudentDashboard;
 
   return (

@@ -27,6 +27,7 @@ const authenticate = async (req, res, next) => {
         phone: true,
         department: true,
         isActive: true,
+        mustChangePassword: true,
       },
     });
 

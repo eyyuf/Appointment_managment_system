@@ -83,13 +83,6 @@ const LoginScreen = ({ navigation }) => {
               loading={loading}
               style={styles.loginBtn}
             />
-
-            <View style={styles.registerRow}>
-              <Text style={styles.registerText}>Don't have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                <Text style={styles.registerLink}>Register</Text>
-              </TouchableOpacity>
-            </View>
           </View>
 
           {/* Quick login hints */}

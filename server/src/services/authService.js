@@ -65,6 +65,7 @@ const login = async ({ email, password }) => {
   const safeUser = {
     id: user.id, fullName: user.fullName, email: user.email,
     role: user.role, phone: user.phone, department: user.department,
+    mustChangePassword: user.mustChangePassword,
   };
 
   const tokens = generateTokenPair(safeUser);
@@ -83,7 +84,10 @@ const changePassword = async (userId, { currentPassword, newPassword }) => {
   if (!isMatch) throw Object.assign(new Error('Current password is incorrect'), { statusCode: 400 });
 
   const hashed = await bcrypt.hash(newPassword, config.bcrypt.rounds);
-  await prisma.user.update({ where: { id: userId }, data: { password: hashed } });
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: hashed, mustChangePassword: false }
+  });
   logger.info(`Password changed for user: ${userId}`);
 };
 
