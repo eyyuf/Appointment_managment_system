@@ -13,7 +13,7 @@ const AppointmentCard = ({ appointment, onPress }) => {
         <View style={styles.flex1}>
           <Text style={styles.title} numberOfLines={1}>{title}</Text>
           <Text style={styles.people}>
-            {requester?.fullName} → {leader?.fullName}
+            {requester?.fullName} {leader ? `→ ${leader.fullName}` : `[${appointment.targetDepartment}]`}
           </Text>
         </View>
         <StatusBadge status={status} />

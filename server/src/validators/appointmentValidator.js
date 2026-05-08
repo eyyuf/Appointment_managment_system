@@ -1,14 +1,20 @@
 const { body, param } = require('express-validator');
 
 const createAppointmentValidator = [
-  body('leaderId')
-    .notEmpty().withMessage('Leader ID is required')
-    .isUUID().withMessage('Invalid leader ID'),
+  body('targetDepartment')
+    .trim()
+    .notEmpty().withMessage('Target department/office is required')
+    .isLength({ min: 2, max: 200 }).withMessage('Department name must be 2–200 characters'),
 
   body('title')
     .trim()
     .notEmpty().withMessage('Title is required')
     .isLength({ min: 3, max: 200 }).withMessage('Title must be 3–200 characters'),
+
+  body('reason')
+    .trim()
+    .notEmpty().withMessage('Reason for appointment is required')
+    .isLength({ min: 10, max: 1000 }).withMessage('Reason must be 10–1000 characters'),
 
   body('description')
     .optional()

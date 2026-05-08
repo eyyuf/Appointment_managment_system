@@ -12,24 +12,38 @@ const {
 // All routes require authentication
 router.use(authenticate);
 
-// Available time slots (public to authenticated users)
-router.get('/slots/:leaderId', c.availableSlots);
+// ─── Student Routes ────────────────────────────────────────
+// Students submit requests — NO direct leader selection
+router.get('/departments', c.getDepartments);
+router.post('/',
+  authorize('STUDENT'),   // ONLY students can submit
+  createAppointmentValidator, validate, c.create);
 
-// CRUD
+// ─── Read ─────────────────────────────────────────────────
 router.get('/', c.getAll);
-router.post('/', createAppointmentValidator, validate, c.create);
+router.get('/slots/:leaderId', c.availableSlots);
 router.get('/:id', c.getOne);
 
-// Workflow actions
-router.post('/:id/secretary-approve',
-  authorize('SECRETARY', 'ADMIN'), c.secretaryApprove);
+// ─── Secretary Workflow (MANDATORY GATEWAY) ──────────────
+// Step 2A: Secretary picks up and marks under review
+router.post('/:id/review',
+  authorize('SECRETARY'), c.markUnderReview);
 
-router.post('/:id/approve',
-  authorize('DEPARTMENT_HEAD', 'DEAN', 'VICE_PRESIDENT', 'PRESIDENT', 'ADMIN'), c.leaderApprove);
+// Step 2B: Secretary forwards to a specific leader
+router.post('/:id/forward',
+  authorize('SECRETARY'), c.secretaryForward);
 
+// Secretary can also reject at review stage
 router.post('/:id/reject',
-  authorize('SECRETARY', 'DEPARTMENT_HEAD', 'DEAN', 'VICE_PRESIDENT', 'PRESIDENT', 'ADMIN'), c.reject);
+  authorize('SECRETARY', 'DEPARTMENT_HEAD', 'DEAN', 'VICE_PRESIDENT', 'PRESIDENT', 'ADMIN'),
+  c.reject);
 
+// ─── Leadership Actions (only on FORWARDED appointments) ──
+router.post('/:id/approve',
+  authorize('DEPARTMENT_HEAD', 'DEAN', 'VICE_PRESIDENT', 'PRESIDENT', 'ADMIN'),
+  c.leaderApprove);
+
+// ─── Common Actions ────────────────────────────────────────
 router.post('/:id/cancel',
   cancelAppointmentValidator, validate, c.cancel);
 

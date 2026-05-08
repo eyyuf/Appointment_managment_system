@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://192.168.100.152:5000/api'; // Change to your server IP
+export const API_BASE_URL = 'http://10.38.74.152:5000/api'; // Change to your server IP
 
 export const STORAGE_KEYS = {
   ACCESS_TOKEN: 'access_token',
@@ -27,8 +27,9 @@ export const ROLE_LABELS = {
 };
 
 export const STATUS_LABELS = {
-  PENDING: 'Pending',
-  SECRETARY_APPROVED: 'Forwarded',
+  PENDING: 'Pending Review',
+  UNDER_REVIEW: 'Under Review',
+  FORWARDED: 'Forwarded to Leader',
   APPROVED: 'Approved',
   REJECTED: 'Rejected',
   CANCELLED: 'Cancelled',

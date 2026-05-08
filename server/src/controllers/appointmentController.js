@@ -4,7 +4,7 @@ const { success, created } = require('../utils/responseHandler');
 const create = async (req, res, next) => {
   try {
     const appt = await appointmentService.createAppointment(req.user.id, req.body);
-    return created(res, appt, 'Appointment request created');
+    return created(res, appt, 'Appointment request submitted — awaiting secretary review');
   } catch (err) { next(err); }
 };
 
@@ -22,13 +22,23 @@ const getOne = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-const secretaryApprove = async (req, res, next) => {
+// Secretary marks as under review
+const markUnderReview = async (req, res, next) => {
   try {
-    const appt = await appointmentService.secretaryApprove(req.params.id, req.user.id, req.body.note);
+    const appt = await appointmentService.secretaryMarkUnderReview(req.params.id, req.user.id);
+    return success(res, appt, 'Appointment marked as under review');
+  } catch (err) { next(err); }
+};
+
+// Secretary forwards to specific leader (MANDATORY step)
+const secretaryForward = async (req, res, next) => {
+  try {
+    const appt = await appointmentService.secretaryForward(req.params.id, req.user.id, req.body);
     return success(res, appt, 'Appointment forwarded to leader');
   } catch (err) { next(err); }
 };
 
+// Leader approves (only FORWARDED appointments)
 const leaderApprove = async (req, res, next) => {
   try {
     const appt = await appointmentService.leaderApprove(req.params.id, req.user.id, req.body.note);
@@ -60,8 +70,20 @@ const reschedule = async (req, res, next) => {
 const availableSlots = async (req, res, next) => {
   try {
     const slots = await appointmentService.getAvailableSlots(req.params.leaderId, req.query.date);
-    return success(res, slots, 'Available slots fetched');
+    return success(res, slots);
   } catch (err) { next(err); }
 };
 
-module.exports = { create, getAll, getOne, secretaryApprove, leaderApprove, reject, cancel, reschedule, availableSlots };
+const getDepartments = async (req, res, next) => {
+  try {
+    const departments = await appointmentService.getDepartments();
+    return success(res, departments);
+  } catch (err) { next(err); }
+};
+
+module.exports = {
+  create, getAll, getOne,
+  markUnderReview, secretaryForward,
+  leaderApprove, reject, cancel, reschedule,
+  availableSlots, getDepartments,
+};

@@ -1,6 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
+// University Leadership Appointment System Schema
 generator client {
   provider = "prisma-client-js"
 }
@@ -21,13 +19,14 @@ enum Role {
 }
 
 enum AppointmentStatus {
-  PENDING
-  SECRETARY_APPROVED
-  APPROVED
-  REJECTED
-  CANCELLED
-  COMPLETED
-  RESCHEDULED
+  PENDING        // Student submitted — awaiting Secretary review
+  UNDER_REVIEW   // Secretary is reviewing
+  FORWARDED      // Secretary forwarded to leader
+  APPROVED       // Leader approved
+  REJECTED       // Rejected by Secretary or Leader
+  RESCHEDULED    // Rescheduled (pending re-approval)
+  CANCELLED      // Cancelled by any party
+  COMPLETED      // Appointment took place
 }
 
 enum RescheduleStatus {
@@ -42,6 +41,7 @@ enum NotificationType {
   APPOINTMENT_REJECTED
   APPOINTMENT_CANCELLED
   APPOINTMENT_RESCHEDULED
+  APPOINTMENT_FORWARDED
   APPOINTMENT_REMINDER
   GENERAL
 }
@@ -54,6 +54,7 @@ model User {
   role                Role      @default(STUDENT)
   phone               String?
   department          String?
+  office              String?
   fcmToken            String?   @map("fcm_token")
   isActive            Boolean   @default(true) @map("is_active")
   mustChangePassword  Boolean   @default(true) @map("must_change_password")
@@ -73,15 +74,18 @@ model User {
 model Appointment {
   id                  String             @id @default(uuid())
   requesterId         String             @map("requester_id")
-  leaderId            String             @map("leader_id")
   secretaryId         String?            @map("secretary_id")
+  leaderId            String?            @map("leader_id")   // Assigned by Secretary during forwarding
+  targetDepartment    String             @map("target_department")  // Student selects this
   title               String
   description         String?
+  reason              String             // Reason for appointment (required)
   date                DateTime           @db.Date
-  startTime           String             @map("start_time")  // "HH:MM"
-  endTime             String             @map("end_time")    // "HH:MM"
+  startTime           String             @map("start_time")
+  endTime             String             @map("end_time")
   status              AppointmentStatus  @default(PENDING)
   location            String?
+  rejectionReason     String?            @map("rejection_reason")
   cancellationReason  String?            @map("cancellation_reason")
   secretaryNote       String?            @map("secretary_note")
   leaderNote          String?            @map("leader_note")
@@ -90,9 +94,10 @@ model Appointment {
 
   // Relations
   requester           User               @relation("Requester", fields: [requesterId], references: [id])
-  leader              User               @relation("Leader", fields: [leaderId], references: [id])
+  leader              User?              @relation("Leader", fields: [leaderId], references: [id])
   secretary           User?              @relation("Secretary", fields: [secretaryId], references: [id])
   rescheduleRequests  RescheduleRequest[]
+  auditLogs           AuditLog[]         @relation("AppointmentAudit")
 
   @@map("appointments")
 }
@@ -112,7 +117,6 @@ model RescheduleRequest {
   createdAt     DateTime         @default(now()) @map("created_at")
   updatedAt     DateTime         @updatedAt @map("updated_at")
 
-  // Relations
   appointment   Appointment      @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
 
   @@map("reschedule_requests")
@@ -128,24 +132,24 @@ model Notification {
   data      Json?
   createdAt DateTime         @default(now()) @map("created_at")
 
-  // Relations
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
 
 model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  action    String
-  entity    String
-  entityId  String?  @map("entity_id")
-  details   Json?
-  ipAddress String?  @map("ip_address")
-  timestamp DateTime @default(now())
+  id            String      @id @default(uuid())
+  userId        String      @map("user_id")
+  action        String
+  entity        String
+  entityId      String?     @map("entity_id")
+  appointmentId String?     @map("appointment_id")
+  details       Json?
+  ipAddress     String?     @map("ip_address")
+  timestamp     DateTime    @default(now())
 
-  // Relations
-  user      User     @relation(fields: [userId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
+  appointment   Appointment? @relation("AppointmentAudit", fields: [appointmentId], references: [id])
 
   @@map("audit_logs")
 }
