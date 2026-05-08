@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "University Appointments",
+    "slug": "university-appointment-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/images/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./src/assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0E1A"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "edu.university.appointments"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/images/adaptive-icon.png",
+        "backgroundColor": "#0A0E1A"
+      },
+      "package": "edu.university.appointments",
+      "permissions": [
+        "NOTIFICATIONS",
+        "INTERNET"
+      ]
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./src/assets/images/icon.png",
+          "color": "#4F6EF7"
+        }
+      ],
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      },
+      "apiUrl": "http://10.38.74.152:5000/api"
+    }
+  }
+}
