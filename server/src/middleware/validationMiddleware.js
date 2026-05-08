@@ -1,0 +1,19 @@
+const { validationResult } = require('express-validator');
+const { badRequest } = require('../utils/responseHandler');
+
+/**
+ * Runs after express-validator chains. Returns 400 if there are validation errors.
+ */
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const formattedErrors = errors.array().map((err) => ({
+      field: err.path,
+      message: err.msg,
+    }));
+    return badRequest(res, 'Validation failed', formattedErrors);
+  }
+  next();
+};
+
+module.exports = { validate };
