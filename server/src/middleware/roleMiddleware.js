@@ -1,33 +1,59 @@
 const { forbidden } = require('../utils/responseHandler');
 
+const toRoleSet = (roles) => {
+  return new Set(
+    roles
+      .flat()
+      .filter(Boolean)
+      .map((role) => String(role).trim())
+      .filter((role) => role.length > 0)
+  );
+};
+
 /**
- * Role-based access control middleware factory
- * @param {...string} allowedRoles - Roles permitted to access the route
+ * Role-based access control middleware factory.
+ * Accepts one or many roles, and supports arrays for flexibility.
  */
 const authorize = (...allowedRoles) => {
+  const allowedRoleSet = toRoleSet(allowedRoles);
+
   return (req, res, next) => {
-    if (!req.user) {
+    const currentUserRole = req?.user?.role;
+    if (!currentUserRole) {
       return forbidden(res, 'Not authenticated');
     }
 
-    if (!allowedRoles.includes(req.user.role)) {
-      return forbidden(res, `Access denied. Required roles: ${allowedRoles.join(', ')}`);
+    if (allowedRoleSet.size === 0) {
+      return forbidden(res, 'Access denied. No roles configured for this route.');
     }
 
-    next();
+    if (!allowedRoleSet.has(currentUserRole)) {
+      return forbidden(res, `Access denied. Required roles: ${Array.from(allowedRoleSet).join(', ')}`);
+    }
+
+    return next();
   };
 };
 
 /**
- * Check if user is accessing their own resource OR has elevated role
+ * Allows access when the authenticated user owns the target resource
+ * or has one of the staff roles.
  */
 const authorizeOwnerOrAdmin = (paramIdField = 'id') => {
   return (req, res, next) => {
-    const resourceUserId = req.params[paramIdField];
-    const currentUserId = req.user.id;
-    const adminRoles = ['ADMIN', 'SECRETARY', 'DEPARTMENT_HEAD', 'DEAN', 'VICE_PRESIDENT', 'PRESIDENT'];
+    const resourceUserId = req?.params?.[paramIdField];
+    const currentUserId = req?.user?.id;
+    const currentRole = req?.user?.role;
 
-    if (resourceUserId === currentUserId || adminRoles.includes(req.user.role)) {
+    if (!currentUserId || !currentRole) {
+      return forbidden(res, 'Not authenticated');
+    }
+
+    if (!resourceUserId) {
+      return forbidden(res, `Missing route parameter: ${paramIdField}`);
+    }
+
+    if (String(resourceUserId) === String(currentUserId) || STAFF_ROLES.includes(currentRole)) {
       return next();
     }
 
@@ -46,8 +72,22 @@ const ROLES = {
   ADMIN: 'ADMIN',
 };
 
-const ALL_ROLES = Object.values(ROLES);
-const STAFF_ROLES = [ROLES.SECRETARY, ROLES.DEPARTMENT_HEAD, ROLES.DEAN, ROLES.VICE_PRESIDENT, ROLES.PRESIDENT, ROLES.ADMIN];
-const LEADERSHIP_ROLES = [ROLES.DEPARTMENT_HEAD, ROLES.DEAN, ROLES.VICE_PRESIDENT, ROLES.PRESIDENT];
+Object.freeze(ROLES);
+
+const ALL_ROLES = Object.freeze(Object.values(ROLES));
+const STAFF_ROLES = Object.freeze([
+  ROLES.SECRETARY,
+  ROLES.DEPARTMENT_HEAD,
+  ROLES.DEAN,
+  ROLES.VICE_PRESIDENT,
+  ROLES.PRESIDENT,
+  ROLES.ADMIN,
+]);
+const LEADERSHIP_ROLES = Object.freeze([
+  ROLES.DEPARTMENT_HEAD,
+  ROLES.DEAN,
+  ROLES.VICE_PRESIDENT,
+  ROLES.PRESIDENT,
+]);
 
 module.exports = { authorize, authorizeOwnerOrAdmin, ROLES, ALL_ROLES, STAFF_ROLES, LEADERSHIP_ROLES };

@@ -1,52 +1,62 @@
 const logger = require('../utils/logger');
+const { error: errorResponse, notFound } = require('../utils/responseHandler');
+
+const DEFAULT_ERROR_MESSAGE = 'Internal server error';
+
+const mapKnownError = (err) => {
+  if (!err) return null;
+
+  if (err.code === 'P2002') {
+    const targetFields = Array.isArray(err.meta?.target) ? err.meta.target.join(', ') : 'value';
+    return { statusCode: 409, message: `A record with this ${targetFields} already exists.` };
+  }
+
+  if (err.code === 'P2025') {
+    return { statusCode: 404, message: 'Record not found.' };
+  }
+
+  if (err.name === 'JsonWebTokenError') {
+    return { statusCode: 401, message: 'Invalid token' };
+  }
+
+  if (err.name === 'TokenExpiredError') {
+    return { statusCode: 401, message: 'Token expired' };
+  }
+
+  return null;
+};
 
 /**
- * Global error handling middleware — must be last in Express pipeline
+ * Global error handling middleware. Register this after all routes.
  */
 const errorHandler = (err, req, res, next) => {
-  logger.error(`${err.message}\n${err.stack}`);
-
-  // Prisma unique constraint violation
-  if (err.code === 'P2002') {
-    return res.status(409).json({
-      success: false,
-      message: `A record with this ${err.meta?.target?.join(', ')} already exists.`,
-    });
+  if (res.headersSent) {
+    return next(err);
   }
 
-  // Prisma record not found
-  if (err.code === 'P2025') {
-    return res.status(404).json({
-      success: false,
-      message: 'Record not found.',
-    });
+  const errorMessage = err?.message || DEFAULT_ERROR_MESSAGE;
+  logger.error(`${errorMessage}\n${err?.stack || 'No stack trace'}`);
+
+  const mapped = mapKnownError(err);
+  if (mapped) {
+    return errorResponse(res, mapped.message, mapped.statusCode);
   }
 
-  // JWT errors
-  if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({ success: false, message: 'Invalid token' });
-  }
-  if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({ success: false, message: 'Token expired' });
-  }
+  const statusCode = Number.isInteger(err?.statusCode) ? err.statusCode : 500;
+  const isProd = process.env.NODE_ENV === 'production';
+  const message = isProd && statusCode >= 500 ? DEFAULT_ERROR_MESSAGE : errorMessage;
 
-  // Generic error
-  const statusCode = err.statusCode || 500;
-  const message = process.env.NODE_ENV === 'production' && statusCode === 500
-    ? 'Internal server error'
-    : err.message || 'Internal server error';
-
-  return res.status(statusCode).json({ success: false, message });
+  return errorResponse(res, message, statusCode);
 };
 
 /**
- * 404 handler for unmatched routes
+ * 404 handler for unmatched routes.
  */
 const notFoundHandler = (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.method} ${req.originalUrl} not found`,
-  });
+  return notFound(res, `Route ${req.method} ${req.originalUrl} not found`);
 };
 
-module.exports = { errorHandler, notFoundHandler };
+module.exports = {
+  errorHandler,
+  notFoundHandler,
+};
