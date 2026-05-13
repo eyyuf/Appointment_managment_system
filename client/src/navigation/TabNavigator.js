@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
 import { useNotifications } from '../hooks/useNotifications';
 import { getDashboardType } from '../utils/rolePermissions';
@@ -15,20 +15,6 @@ import ProfileScreen from '../screens/profile/ProfileScreen';
 import AdminDashboard from '../screens/dashboard/AdminDashboard';
 
 const Tab = createBottomTabNavigator();
-
-const TabIcon = ({ name, focused }) => {
-  const labels = {
-    Home: 'Home',
-    Calendar: 'Cal',
-    Notifications: 'Notif',
-    Profile: 'Me',
-  };
-  return (
-    <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>
-      {labels[name] || name}
-    </Text>
-  );
-};
 
 const TabNavigator = ({ userRole }) => {
   const { unreadCount } = useNotifications();
@@ -48,7 +34,6 @@ const TabNavigator = ({ userRole }) => {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: styles.tabLabel,
-        tabBarIcon: ({ focused }) => <TabIcon name={route.name} focused={focused} />,
       })}
     >
       <Tab.Screen name="Home" component={DashboardComponent} options={{ title: 'Dashboard' }} />
@@ -77,8 +62,6 @@ const styles = StyleSheet.create({
   },
   tabLabel: { fontSize: 11, fontWeight: '500' },
   badge: { backgroundColor: colors.error, color: colors.white, fontSize: 10 },
-  tabIcon: { fontSize: 10, fontWeight: '600', color: colors.textMuted, textAlign: 'center' },
-  tabIconActive: { color: colors.primary },
 });
 
 export default TabNavigator;
