@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../hooks/useAuth';
 import { colors } from '../../theme/colors';
@@ -41,13 +41,6 @@ const ProfileScreen = () => {
       Alert.alert('✅ Changed', 'Password updated');
     } catch (err) { Alert.alert('Error', err.message); }
     finally { setLoading(false); }
-  };
-
-  const confirmLogout = () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive', onPress: logout },
-    ]);
   };
 
   return (
@@ -105,7 +98,7 @@ const ProfileScreen = () => {
         </View>
 
         {/* Sign Out */}
-        <AppButton title="Sign Out" onPress={confirmLogout} variant="danger" style={styles.logoutBtn} />
+        <AppButton title="Sign Out" onPress={logout} variant="danger" style={styles.logoutBtn} />
       </ScrollView>
     </SafeAreaView>
   );
