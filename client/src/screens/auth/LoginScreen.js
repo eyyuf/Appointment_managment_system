@@ -6,13 +6,14 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../hooks/useAuth';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import AppButton from '../../components/buttons/AppButton';
 import AppInput from '../../components/forms/AppInput';
 import { validateEmail, validatePassword } from '../../utils/validators';
 
 const LoginScreen = ({ navigation }) => {
   const { login } = useAuth();
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
@@ -40,12 +41,14 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
+  const styles = makeStyles(colors);
+
   return (
     <SafeAreaView style={styles.safe}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {/* Header Gradient */}
-          <LinearGradient colors={['#0A0E1A', '#131929']} style={styles.header}>
+          <LinearGradient colors={['#F7F8FA', '#ECEEF2']} style={styles.header}>
             <View style={styles.logoWrap}>
               <Text style={styles.logoIcon}>🎓</Text>
             </View>
@@ -105,7 +108,7 @@ const LoginScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   flex: { flex: 1 },
   scroll: { flexGrow: 1 },

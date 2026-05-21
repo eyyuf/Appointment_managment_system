@@ -5,13 +5,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../hooks/useAuth';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import AppButton from '../../components/buttons/AppButton';
 import AppInput from '../../components/forms/AppInput';
 import { authService } from '../../services/authService';
 
 const ChangePasswordOnFirstLogin = () => {
   const { user, updateUser } = useAuth();
+  const { colors } = useTheme();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -40,6 +41,8 @@ const ChangePasswordOnFirstLogin = () => {
       setLoading(false);
     }
   };
+
+  const styles = makeStyles(colors);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -88,7 +91,7 @@ const ChangePasswordOnFirstLogin = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   flex: { flex: 1 },
   scroll: { flexGrow: 1, justifyContent: 'center', padding: 20 },

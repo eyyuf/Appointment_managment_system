@@ -1,7 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../theme/colors';
+import { StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../context/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { getDashboardType } from '../utils/rolePermissions';
 
@@ -16,29 +17,32 @@ import AdminDashboard from '../screens/dashboard/AdminDashboard';
 
 const Tab = createBottomTabNavigator();
 
-const TabIcon = ({ name, focused }) => {
-  const labels = {
-    Home: 'Home',
-    Calendar: 'Cal',
-    Notifications: 'Notif',
-    Profile: 'Me',
-  };
-  return (
-    <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>
-      {labels[name] || name}
-    </Text>
-  );
+const TabIcon = ({ name, focused, color, size }) => {
+  let iconName;
+  if (name === 'Home') {
+    iconName = focused ? 'home' : 'home-outline';
+  } else if (name === 'Calendar') {
+    iconName = focused ? 'calendar' : 'calendar-outline';
+  } else if (name === 'Notifications') {
+    iconName = focused ? 'notifications' : 'notifications-outline';
+  } else if (name === 'Profile') {
+    iconName = focused ? 'person' : 'person-outline';
+  }
+  return <Ionicons name={iconName} size={size || 24} color={color} />;
 };
 
 const TabNavigator = ({ userRole }) => {
+  const { colors } = useTheme();
   const { unreadCount } = useNotifications();
   const dashType = getDashboardType(userRole);
 
   const DashboardComponent =
     dashType === 'secretary' ? SecretaryDashboard :
-    dashType === 'leader' ? LeaderDashboard :
-    dashType === 'admin' ? AdminDashboard :
-    StudentDashboard;
+      dashType === 'leader' ? LeaderDashboard :
+        dashType === 'admin' ? AdminDashboard :
+          StudentDashboard;
+
+  const styles = makeStyles(colors);
 
   return (
     <Tab.Navigator
@@ -48,7 +52,7 @@ const TabNavigator = ({ userRole }) => {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: styles.tabLabel,
-        tabBarIcon: ({ focused }) => <TabIcon name={route.name} focused={focused} />,
+        tabBarIcon: ({ focused, color, size }) => <TabIcon name={route.name} focused={focused} color={color} size={size} />,
       })}
     >
       <Tab.Screen name="Home" component={DashboardComponent} options={{ title: 'Dashboard' }} />
@@ -66,7 +70,7 @@ const TabNavigator = ({ userRole }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   tabBar: {
     backgroundColor: colors.bgCard,
     borderTopColor: colors.border,
@@ -77,8 +81,6 @@ const styles = StyleSheet.create({
   },
   tabLabel: { fontSize: 11, fontWeight: '500' },
   badge: { backgroundColor: colors.error, color: colors.white, fontSize: 10 },
-  tabIcon: { fontSize: 10, fontWeight: '600', color: colors.textMuted, textAlign: 'center' },
-  tabIconActive: { color: colors.primary },
 });
 
 export default TabNavigator;

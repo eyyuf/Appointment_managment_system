@@ -4,12 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar } from 'react-native-calendars';
 import { useFocusEffect } from '@react-navigation/native';
 import { calendarService } from '../../services/notificationService';
-import { colors } from '../../theme/colors';
-import { statusColors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import { formatTime } from '../../utils/dateFormatter';
 import { toISODate } from '../../utils/dateFormatter';
 
 const CalendarScreen = ({ navigation }) => {
+  const { colors } = useTheme();
   const today = toISODate(new Date());
   const [selected, setSelected] = useState(today);
   const [appointments, setAppointments] = useState([]);
@@ -22,7 +22,7 @@ const CalendarScreen = ({ navigation }) => {
     try {
       const res = await calendarService.getMonthly(date.getFullYear(), date.getMonth() + 1);
       setAppointments(res.data.data || []);
-    } catch {}
+    } catch { }
     finally { setLoading(false); }
   }, []);
 
@@ -58,6 +58,8 @@ const CalendarScreen = ({ navigation }) => {
     else markedDates[d].dots.push(dot);
   });
   markedDates[selected] = { ...(markedDates[selected] || {}), selected: true, selectedColor: colors.primary };
+
+  const styles = makeStyles(colors);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -120,7 +122,7 @@ const CalendarScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   heading: { fontSize: 22, fontWeight: '700', color: colors.textPrimary, padding: 20, paddingBottom: 12 },
   calendar: { marginHorizontal: 16, borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: colors.border },

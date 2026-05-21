@@ -1,12 +1,14 @@
 import React from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 
 const AppInput = ({
   label, value, onChangeText, placeholder, error,
   secureTextEntry, keyboardType, multiline, numberOfLines,
   rightIcon, onRightIconPress, editable = true, style,
 }) => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   return (
     <View style={[styles.container, style]}>
       {label && <Text style={styles.label}>{label}</Text>}
@@ -34,7 +36,7 @@ const AppInput = ({
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   container: { marginBottom: 16 },
   label: { fontSize: 13, fontWeight: '500', color: colors.textSecondary, marginBottom: 6 },
   inputWrap: {

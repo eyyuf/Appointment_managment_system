@@ -1,10 +1,12 @@
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import StatusBadge from './StatusBadge';
 import { formatDate, formatTime } from '../../utils/dateFormatter';
 
 const AppointmentCard = ({ appointment, onPress }) => {
+  const { colors } = useTheme();
+  const styles = makeStyles(colors);
   const { title, date, startTime, endTime, status, requester, leader } = appointment;
 
   return (
@@ -29,7 +31,7 @@ const AppointmentCard = ({ appointment, onPress }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   card: {
     backgroundColor: colors.bgCard, borderRadius: 16, padding: 16,
     marginBottom: 12, borderWidth: 1, borderColor: colors.border,

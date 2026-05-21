@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../hooks/useAuth';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import AppButton from '../../components/buttons/AppButton';
 import AppInput from '../../components/forms/AppInput';
 import { validateEmail, validatePassword, validateRequired } from '../../utils/validators';
@@ -15,6 +15,7 @@ const ROLE_OPTIONS = [ROLES.STUDENT, ROLES.SECRETARY, ROLES.DEPARTMENT_HEAD, ROL
 
 const RegisterScreen = ({ navigation }) => {
   const { register } = useAuth();
+  const { colors } = useTheme();
   const [form, setForm] = useState({ fullName: '', email: '', password: '', role: ROLES.STUDENT, phone: '', department: '' });
   const [showPw, setShowPw] = useState(false);
   const [errors, setErrors] = useState({});
@@ -48,6 +49,8 @@ const RegisterScreen = ({ navigation }) => {
       setLoading(false);
     }
   };
+
+  const styles = makeStyles(colors);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -88,7 +91,7 @@ const RegisterScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { flexGrow: 1 },
   header: { padding: 24, paddingTop: 16 },

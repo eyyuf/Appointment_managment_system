@@ -7,27 +7,28 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotifications } from '../../hooks/useNotifications';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import { appointmentService } from '../../services/appointmentService';
 import AppointmentCard from '../../components/cards/AppointmentCard';
 import { ROLE_LABELS, STATUS_LABELS } from '../../utils/constants';
 
-const STATUS_COLORS = {
-  PENDING: colors.warning,
-  UNDER_REVIEW: colors.primary,
-  FORWARDED: '#9C6EFF',
-  APPROVED: colors.success,
-  REJECTED: colors.error,
-  CANCELLED: colors.textMuted,
-  RESCHEDULED: '#FF9500',
-  COMPLETED: colors.success,
-};
-
 const StudentDashboard = ({ navigation }) => {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const { unreadCount, fetchNotifications } = useNotifications();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const STATUS_COLORS = {
+    PENDING: colors.warning,
+    UNDER_REVIEW: colors.primary,
+    FORWARDED: colors.rescheduled,
+    APPROVED: colors.success,
+    REJECTED: colors.error,
+    CANCELLED: colors.textMuted,
+    RESCHEDULED: colors.warning,
+    COMPLETED: colors.success,
+  };
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -36,7 +37,7 @@ const StudentDashboard = ({ navigation }) => {
       const list = res.data.data.appointments || [];
       setAppointments(list);
       fetchNotifications();
-    } catch {}
+    } catch { }
     finally { setLoading(false); }
   }, []);
 
@@ -51,6 +52,8 @@ const StudentDashboard = ({ navigation }) => {
     { label: 'Approved', value: approved.length, color: colors.success },
     { label: 'Past', value: past.length, color: colors.textMuted },
   ];
+
+  const styles = makeStyles(colors);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -179,7 +182,7 @@ const StudentDashboard = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   header: { padding: 24, paddingBottom: 16 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },

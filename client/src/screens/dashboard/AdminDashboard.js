@@ -5,13 +5,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../hooks/useAuth';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import { userService } from '../../services/notificationService';
 import AppButton from '../../components/buttons/AppButton';
 import { ROLE_LABELS } from '../../utils/constants';
 
 const AdminDashboard = ({ navigation }) => {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({ total: 0, active: 0, inactive: 0 });
@@ -45,6 +46,8 @@ const AdminDashboard = ({ navigation }) => {
     }
   };
 
+  const styles = makeStyles(colors);
+
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView
@@ -69,7 +72,7 @@ const AdminDashboard = ({ navigation }) => {
           ))}
         </View>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.createBtn}
           onPress={() => navigation.navigate('Register')}
         >
@@ -89,7 +92,7 @@ const AdminDashboard = ({ navigation }) => {
                 </View>
               </View>
               <View style={styles.userActions}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => toggleUserStatus(u.id, u.isActive)}
                   style={[styles.statusToggle, u.isActive ? styles.btnDeactivate : styles.btnActivate]}
                 >
@@ -106,7 +109,7 @@ const AdminDashboard = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   header: { padding: 24, paddingBottom: 16 },
   title: { fontSize: 28, fontWeight: '800', color: colors.textPrimary },
@@ -119,12 +122,12 @@ const styles = StyleSheet.create({
   createBtnText: { color: colors.white, fontWeight: '700', fontSize: 15 },
   section: { paddingHorizontal: 20, paddingBottom: 40 },
   sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.textPrimary, marginBottom: 16 },
-  userCard: { 
-    backgroundColor: colors.bgCard, 
-    borderRadius: 16, 
-    padding: 16, 
-    marginBottom: 12, 
-    borderWidth: 1, 
+  userCard: {
+    backgroundColor: colors.bgCard,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
     borderColor: colors.border,
     flexDirection: 'row',
     justifyContent: 'space-between',

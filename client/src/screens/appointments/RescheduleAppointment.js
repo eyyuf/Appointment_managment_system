@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { appointmentService } from '../../services/appointmentService';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import AppInput from '../../components/forms/AppInput';
 import AppButton from '../../components/buttons/AppButton';
 import { formatDate, formatTime } from '../../utils/dateFormatter';
 
 const RescheduleAppointment = ({ route, navigation }) => {
   const { id, appointment } = route.params;
+  const { colors } = useTheme();
   const [form, setForm] = useState({ newDate: '', newStartTime: '', newEndTime: '', reason: '' });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -36,6 +37,8 @@ const RescheduleAppointment = ({ route, navigation }) => {
     finally { setLoading(false); }
   };
 
+  const styles = makeStyles(colors);
+
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
@@ -60,7 +63,7 @@ const RescheduleAppointment = ({ route, navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: 20 },
   currentCard: { backgroundColor: colors.bgElevated, borderRadius: 12, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: colors.border },

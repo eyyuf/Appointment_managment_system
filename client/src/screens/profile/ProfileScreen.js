@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../hooks/useAuth';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import AppInput from '../../components/forms/AppInput';
 import AppButton from '../../components/buttons/AppButton';
 import { userService } from '../../services/notificationService';
@@ -11,6 +11,7 @@ import { ROLE_LABELS } from '../../utils/constants';
 
 const ProfileScreen = () => {
   const { user, logout, updateUser } = useAuth();
+  const { colors, isDark, toggleTheme } = useTheme();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ fullName: user?.fullName || '', phone: user?.phone || '', department: user?.department || '' });
   const [loading, setLoading] = useState(false);
@@ -50,6 +51,8 @@ const ProfileScreen = () => {
     ]);
   };
 
+  const styles = makeStyles(colors);
+
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -63,6 +66,23 @@ const ProfileScreen = () => {
             <Text style={styles.roleText}>{ROLE_LABELS[user?.role]}</Text>
           </View>
           <Text style={styles.email}>{user?.email}</Text>
+        </View>
+
+        {/* Dark Mode Toggle */}
+        <View style={styles.card}>
+          <View style={styles.toggleRow}>
+            <View>
+              <Text style={styles.cardTitle}>{isDark ? '🌙 Dark Mode' : '☀️ Light Mode'}</Text>
+              <Text style={styles.toggleSub}>Switch appearance</Text>
+            </View>
+            <Switch
+              value={isDark}
+              onValueChange={toggleTheme}
+              trackColor={{ false: colors.bgElevated, true: colors.primary }}
+              thumbColor={isDark ? colors.white : colors.bgCard}
+              ios_backgroundColor={colors.bgElevated}
+            />
+          </View>
         </View>
 
         {/* Profile Card */}
@@ -83,8 +103,8 @@ const ProfileScreen = () => {
             </>
           ) : (
             <>
-              <InfoRow label="Phone" value={user?.phone || '—'} />
-              <InfoRow label="Department" value={user?.department || '—'} />
+              <InfoRow label="Phone" value={user?.phone || '—'} colors={colors} />
+              <InfoRow label="Department" value={user?.department || '—'} colors={colors} />
             </>
           )}
         </View>
@@ -111,19 +131,14 @@ const ProfileScreen = () => {
   );
 };
 
-const InfoRow = ({ label, value }) => (
-  <View style={infoStyles.row}>
-    <Text style={infoStyles.label}>{label}</Text>
-    <Text style={infoStyles.value}>{value}</Text>
+const InfoRow = ({ label, value, colors }) => (
+  <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.divider }}>
+    <Text style={{ fontSize: 14, color: colors.textSecondary }}>{label}</Text>
+    <Text style={{ fontSize: 14, color: colors.textPrimary, fontWeight: '500' }}>{value}</Text>
   </View>
 );
-const infoStyles = StyleSheet.create({
-  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.divider },
-  label: { fontSize: 14, color: colors.textSecondary },
-  value: { fontSize: 14, color: colors.textPrimary, fontWeight: '500' },
-});
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: 20 },
   avatarSection: { alignItems: 'center', marginBottom: 24 },
@@ -137,6 +152,8 @@ const styles = StyleSheet.create({
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   cardTitle: { fontSize: 16, fontWeight: '700', color: colors.textPrimary },
   editBtn: { fontSize: 14, color: colors.primary, fontWeight: '500' },
+  toggleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  toggleSub: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
   logoutBtn: { marginTop: 8, marginBottom: 20 },
 });
 

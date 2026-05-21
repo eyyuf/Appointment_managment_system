@@ -6,7 +6,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar } from 'react-native-calendars';
 import { appointmentService } from '../../services/appointmentService';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import AppInput from '../../components/forms/AppInput';
 import AppButton from '../../components/buttons/AppButton';
 
@@ -30,6 +30,7 @@ const TIME_SLOTS = [
 ];
 
 const CreateAppointment = ({ navigation }) => {
+  const { colors } = useTheme();
   const [departments, setDepartments] = useState([]);
   const [loadingDepts, setLoadingDepts] = useState(true);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -93,6 +94,8 @@ const CreateAppointment = ({ navigation }) => {
   const markedDates = form.date
     ? { [form.date]: { selected: true, selectedColor: colors.primary } }
     : {};
+
+  const styles = makeStyles(colors);
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
@@ -247,7 +250,7 @@ const CreateAppointment = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: 16, paddingBottom: 32 },
   infoBanner: {

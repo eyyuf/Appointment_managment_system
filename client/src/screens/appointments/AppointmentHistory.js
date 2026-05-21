@@ -3,11 +3,12 @@ import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { appointmentService } from '../../services/appointmentService';
 import { useFocusEffect } from '@react-navigation/native';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import AppointmentCard from '../../components/cards/AppointmentCard';
 import { APPOINTMENT_STATUSES, STATUS_LABELS } from '../../utils/constants';
 
 const AppointmentHistory = ({ navigation }) => {
+  const { colors } = useTheme();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('');
@@ -18,11 +19,13 @@ const AppointmentHistory = ({ navigation }) => {
       const params = filter ? { status: filter, limit: 50 } : { limit: 50 };
       const res = await appointmentService.getAll(params);
       setAppointments(res.data.data.appointments || []);
-    } catch {}
+    } catch { }
     finally { setLoading(false); }
   }, [filter]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  const styles = makeStyles(colors);
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
@@ -60,7 +63,7 @@ const AppointmentHistory = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   filters: { flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 12, gap: 8, flexWrap: 'wrap' },
   chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgElevated },

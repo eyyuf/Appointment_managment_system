@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, Alert, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../hooks/useAuth';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import { appointmentService } from '../../services/appointmentService';
 import AppointmentCard from '../../components/cards/AppointmentCard';
 import AppButton from '../../components/buttons/AppButton';
@@ -11,6 +11,7 @@ import { ROLE_LABELS } from '../../utils/constants';
 
 const LeaderDashboard = ({ navigation }) => {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
@@ -25,7 +26,7 @@ const LeaderDashboard = ({ navigation }) => {
     try {
       const res = await appointmentService.getAll({ limit: 50 });
       setAppointments(res.data.data.appointments || []);
-    } catch {}
+    } catch { }
     finally { setLoading(false); }
   }, []);
 
@@ -62,6 +63,8 @@ const LeaderDashboard = ({ navigation }) => {
     } catch (err) { Alert.alert('Error', err.message); }
     finally { setActionLoading(null); }
   };
+
+  const styles = makeStyles(colors);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -180,7 +183,7 @@ const LeaderDashboard = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   header: { padding: 24, paddingBottom: 8 },
   role: { fontSize: 13, color: colors.primary, fontWeight: '600' },

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNotifications } from '../../hooks/useNotifications';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import AppButton from '../../components/buttons/AppButton';
 import { format } from 'date-fns';
 
@@ -18,8 +18,11 @@ const typeIcons = {
 
 const NotificationScreen = () => {
   const { notifications, unreadCount, loading, fetchNotifications, markRead, markAllRead } = useNotifications();
+  const { colors } = useTheme();
 
   useEffect(() => { fetchNotifications(); }, []);
+
+  const styles = makeStyles(colors);
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
@@ -69,7 +72,7 @@ const NotificationScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingBottom: 12 },
   heading: { fontSize: 22, fontWeight: '700', color: colors.textPrimary },

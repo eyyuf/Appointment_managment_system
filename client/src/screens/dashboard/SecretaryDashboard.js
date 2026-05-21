@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../hooks/useAuth';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import { appointmentService } from '../../services/appointmentService';
 import { userService } from '../../services/notificationService';
 import AppointmentCard from '../../components/cards/AppointmentCard';
@@ -15,6 +15,7 @@ import { ROLE_LABELS } from '../../utils/constants';
 
 const SecretaryDashboard = ({ navigation }) => {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [appointments, setAppointments] = useState([]);
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -93,6 +94,8 @@ const SecretaryDashboard = ({ navigation }) => {
     } catch (err) { Alert.alert('Error', err.message); }
     finally { setActionLoading(null); }
   };
+
+  const styles = makeStyles(colors);
 
   const SectionHeader = ({ title, count, color }) => (
     <View style={styles.sectionHeader}>
@@ -308,7 +311,7 @@ const SecretaryDashboard = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   header: { padding: 24, paddingBottom: 8 },
   role: { fontSize: 13, color: colors.primary, fontWeight: '600' },

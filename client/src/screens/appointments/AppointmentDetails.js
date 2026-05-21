@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { appointmentService } from '../../services/appointmentService';
 import { useAuth } from '../../hooks/useAuth';
-import { colors } from '../../theme/colors';
+import { useTheme } from '../../context/ThemeContext';
 import StatusBadge from '../../components/cards/StatusBadge';
 import AppButton from '../../components/buttons/AppButton';
 import AppInput from '../../components/forms/AppInput';
@@ -13,6 +13,7 @@ import { ROLE_LABELS } from '../../utils/constants';
 const AppointmentDetails = ({ route, navigation }) => {
   const { id } = route.params;
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [appt, setAppt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [cancelReason, setCancelReason] = useState('');
@@ -50,6 +51,8 @@ const AppointmentDetails = ({ route, navigation }) => {
     finally { setActionLoading(false); }
   };
 
+  const styles = makeStyles(colors);
+
   if (loading) return <View style={styles.center}><ActivityIndicator color={colors.primary} size="large" /></View>;
   if (!appt) return null;
 
@@ -57,7 +60,6 @@ const AppointmentDetails = ({ route, navigation }) => {
   const isLeader = ['DEPARTMENT_HEAD', 'DEAN', 'VICE_PRESIDENT', 'PRESIDENT'].includes(user.role);
   const isRequester = appt.requesterId === user.id;
 
-  // Permissions based on strict workflow
   const canApprove = isLeader && appt.leaderId === user.id && appt.status === 'FORWARDED';
   const canCancel = (isRequester && ['PENDING', 'UNDER_REVIEW'].includes(appt.status)) ||
     (isSecretary && ['PENDING', 'UNDER_REVIEW', 'FORWARDED'].includes(appt.status)) ||
@@ -65,7 +67,6 @@ const AppointmentDetails = ({ route, navigation }) => {
   const canReschedule = appt.status === 'APPROVED' &&
     (isRequester || isSecretary || (isLeader && appt.leaderId === user.id));
 
-  // Workflow step indicators
   const steps = [
     { key: 'PENDING', label: 'Submitted', done: true },
     { key: 'UNDER_REVIEW', label: 'Under Review', done: ['UNDER_REVIEW', 'FORWARDED', 'APPROVED', 'COMPLETED'].includes(appt.status) },
@@ -85,7 +86,7 @@ const AppointmentDetails = ({ route, navigation }) => {
           <Text style={styles.dept}>{appt.targetDepartment}</Text>
         </View>
 
-        {/* Workflow Steps (only if not terminal) */}
+        {/* Workflow Steps */}
         {!isTerminal && (
           <View style={styles.stepsRow}>
             {steps.map((step, i) => (
@@ -102,29 +103,29 @@ const AppointmentDetails = ({ route, navigation }) => {
 
         {/* Main Info */}
         <View style={styles.card}>
-          <Row label="Date" value={formatDate(appt.date)} />
-          <Row label="Time" value={`${formatTime(appt.startTime)} – ${formatTime(appt.endTime)}`} />
-          {appt.location && <Row label="Location" value={appt.location} />}
-          <Row label="Requester" value={`${appt.requester?.fullName} (${ROLE_LABELS[appt.requester?.role]})`} />
-          {appt.leader && <Row label="Assigned Leader" value={`${appt.leader?.fullName} (${ROLE_LABELS[appt.leader?.role]})`} />}
-          {appt.secretary && <Row label="Secretary" value={appt.secretary?.fullName} />}
+          <Row label="Date" value={formatDate(appt.date)} colors={colors} />
+          <Row label="Time" value={`${formatTime(appt.startTime)} – ${formatTime(appt.endTime)}`} colors={colors} />
+          {appt.location && <Row label="Location" value={appt.location} colors={colors} />}
+          <Row label="Requester" value={`${appt.requester?.fullName} (${ROLE_LABELS[appt.requester?.role]})`} colors={colors} />
+          {appt.leader && <Row label="Assigned Leader" value={`${appt.leader?.fullName} (${ROLE_LABELS[appt.leader?.role]})`} colors={colors} />}
+          {appt.secretary && <Row label="Secretary" value={appt.secretary?.fullName} colors={colors} />}
         </View>
 
         {/* Reason & Notes */}
         {(appt.reason || appt.description) && (
           <View style={styles.card}>
-            {appt.reason && <TextBlock label="Reason for Appointment" value={appt.reason} />}
-            {appt.description && <TextBlock label="Additional Details" value={appt.description} />}
+            {appt.reason && <TextBlock label="Reason for Appointment" value={appt.reason} colors={colors} />}
+            {appt.description && <TextBlock label="Additional Details" value={appt.description} colors={colors} />}
           </View>
         )}
 
         {/* Secretary / Leader Notes */}
         {(appt.secretaryNote || appt.leaderNote || appt.rejectionReason || appt.cancellationReason) && (
           <View style={styles.card}>
-            {appt.secretaryNote && <TextBlock label="Secretary Note" value={appt.secretaryNote} />}
-            {appt.leaderNote && <TextBlock label="Leader Note" value={appt.leaderNote} />}
-            {appt.rejectionReason && <TextBlock label="Rejection Reason" value={appt.rejectionReason} color={colors.error} />}
-            {appt.cancellationReason && <TextBlock label="Cancellation Reason" value={appt.cancellationReason} color={colors.error} />}
+            {appt.secretaryNote && <TextBlock label="Secretary Note" value={appt.secretaryNote} colors={colors} />}
+            {appt.leaderNote && <TextBlock label="Leader Note" value={appt.leaderNote} colors={colors} />}
+            {appt.rejectionReason && <TextBlock label="Rejection Reason" value={appt.rejectionReason} color={colors.error} colors={colors} />}
+            {appt.cancellationReason && <TextBlock label="Cancellation Reason" value={appt.cancellationReason} color={colors.error} colors={colors} />}
           </View>
         )}
 
@@ -165,35 +166,28 @@ const AppointmentDetails = ({ route, navigation }) => {
   );
 };
 
-const Row = ({ label, value }) => (
-  <View style={rowStyles.row}>
-    <Text style={rowStyles.label}>{label}</Text>
-    <Text style={rowStyles.value}>{value || '—'}</Text>
+const Row = ({ label, value, colors }) => (
+  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.border }}>
+    <Text style={{ fontSize: 12, color: colors.textMuted, fontWeight: '600', flex: 1 }}>{label}</Text>
+    <Text style={{ fontSize: 14, color: colors.textPrimary, fontWeight: '500', flex: 2, textAlign: 'right' }}>{value || '—'}</Text>
   </View>
 );
 
-const TextBlock = ({ label, value, color }) => (
+const TextBlock = ({ label, value, color, colors }) => (
   <View style={{ marginBottom: 12 }}>
-    <Text style={[rowStyles.label, { marginBottom: 4 }]}>{label}</Text>
-    <Text style={[rowStyles.value, { color: color || colors.textPrimary }]}>{value}</Text>
+    <Text style={{ fontSize: 12, color: colors.textMuted, fontWeight: '600', marginBottom: 4 }}>{label}</Text>
+    <Text style={{ fontSize: 14, color: color || colors.textPrimary, fontWeight: '500' }}>{value}</Text>
   </View>
 );
 
-const rowStyles = StyleSheet.create({
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.border },
-  label: { fontSize: 12, color: colors.textMuted, fontWeight: '600', flex: 1 },
-  value: { fontSize: 14, color: colors.textPrimary, fontWeight: '500', flex: 2, textAlign: 'right' },
-});
-
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
   scroll: { padding: 20, paddingBottom: 40 },
   statusHeader: { alignItems: 'center', marginBottom: 20 },
   title: { fontSize: 20, fontWeight: '700', color: colors.textPrimary, marginTop: 10, textAlign: 'center' },
   dept: { fontSize: 13, color: colors.primary, fontWeight: '500', marginTop: 4 },
-  // Workflow Steps
-  stepsRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: colors.bgCard, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: colors.border, position: 'relative' },
+  stepsRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: colors.bgCard, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: colors.border },
   stepItem: { alignItems: 'center', flex: 1, position: 'relative' },
   stepDot: { width: 24, height: 24, borderRadius: 12, backgroundColor: colors.bgElevated, borderWidth: 2, borderColor: colors.border, justifyContent: 'center', alignItems: 'center', marginBottom: 4 },
   stepDotDone: { backgroundColor: colors.primary, borderColor: colors.primary },
