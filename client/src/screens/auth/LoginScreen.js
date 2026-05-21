@@ -48,7 +48,7 @@ const LoginScreen = ({ navigation }) => {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {/* Header Gradient */}
-          <LinearGradient colors={['#F7F8FA', '#ECEEF2']} style={styles.header}>
+          <LinearGradient colors={[colors.bg, colors.bgElevated]} style={styles.header}>
             <View style={styles.logoWrap}>
               <Text style={styles.logoIcon}>🎓</Text>
             </View>
@@ -75,7 +75,7 @@ const LoginScreen = ({ navigation }) => {
               onChangeText={setPassword}
               placeholder="Enter password"
               secureTextEntry={!showPw}
-              rightIcon={showPw ? '🙈' : '👁️'}
+              rightIcon="👁️"
               onRightIconPress={() => setShowPw((v) => !v)}
               error={errors.password}
             />
@@ -88,20 +88,7 @@ const LoginScreen = ({ navigation }) => {
             />
           </View>
 
-          {/* Quick login hints */}
-          <View style={styles.hint}>
-            <Text style={styles.hintTitle}>Demo Accounts</Text>
-            {[
-              ['Student', 'student@university.edu'],
-              ['Secretary', 'secretary@university.edu'],
-              ['Dean', 'dean@university.edu'],
-            ].map(([role, mail]) => (
-              <TouchableOpacity key={mail} onPress={() => { setEmail(mail); setPassword('Pass@123'); }}>
-                <Text style={styles.hintItem}>• {role}: {mail}</Text>
-              </TouchableOpacity>
-            ))}
-            <Text style={styles.hintItem}>Password: Pass@123</Text>
-          </View>
+
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -131,12 +118,6 @@ const makeStyles = (colors) => StyleSheet.create({
   registerRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
   registerText: { color: colors.textSecondary, fontSize: 14 },
   registerLink: { color: colors.primary, fontSize: 14, fontWeight: '600' },
-  hint: {
-    margin: 20, marginTop: 0, padding: 16,
-    backgroundColor: colors.bgElevated, borderRadius: 12,
-  },
-  hintTitle: { color: colors.textSecondary, fontSize: 12, fontWeight: '600', marginBottom: 6 },
-  hintItem: { color: colors.textMuted, fontSize: 11, marginBottom: 3 },
 });
 
 export default LoginScreen;

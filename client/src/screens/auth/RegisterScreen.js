@@ -64,7 +64,7 @@ const RegisterScreen = ({ navigation }) => {
           <View style={styles.card}>
             <AppInput label="Full Name" value={form.fullName} onChangeText={set('fullName')} placeholder="Dr. John Doe" error={errors.fullName} />
             <AppInput label="Email" value={form.email} onChangeText={set('email')} placeholder="you@university.edu" keyboardType="email-address" error={errors.email} />
-            <AppInput label="Temporary Password" value={form.password} onChangeText={set('password')} placeholder="Min 8 chars" secureTextEntry={!showPw} rightIcon={showPw ? '🙈' : '👁️'} onRightIconPress={() => setShowPw((v) => !v)} error={errors.password} />
+            <AppInput label="Temporary Password" value={form.password} onChangeText={set('password')} placeholder="Min 8 chars" secureTextEntry={!showPw} rightIcon="👁️" onRightIconPress={() => setShowPw((v) => !v)} error={errors.password} />
             <AppInput label="Phone (optional)" value={form.phone} onChangeText={set('phone')} placeholder="+254700000000" keyboardType="phone-pad" />
             <AppInput label="Department (optional)" value={form.department} onChangeText={set('department')} placeholder="Computer Science" />
 
