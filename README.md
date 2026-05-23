@@ -68,7 +68,8 @@ npx expo start
 
 Scan the QR code with Expo Go on your Android/iOS device.
 
-## Sample Accounts
+
+## Sample Accounts:
 
 | Role | Email | Password |
 |------|-------|----------|
@@ -80,13 +81,13 @@ Scan the QR code with Expo Go on your Android/iOS device.
 | Secretary | secretary@university.edu | Pass@123 |
 | Student | student@university.edu | Pass@123 |
 
-## API Base URL
+## API Base URL:
 
 ```
 http://localhost:5000/api
 ```
 
-## Build Android APK
+## Build Android APK:
 
 ```bash
 cd client
@@ -95,4 +96,4 @@ eas login
 eas build -p android --profile preview
 ```
 
-See `docs/apk-build-guide.md` for detailed instructions.
+you can See `docs/apk-build-guide.md` for detailed instructions.
