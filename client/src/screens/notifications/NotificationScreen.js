@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { useNotifications } from '../../hooks/useNotifications';
 import { useTheme } from '../../context/ThemeContext';
 import AppButton from '../../components/buttons/AppButton';
@@ -17,10 +18,15 @@ const typeIcons = {
 };
 
 const NotificationScreen = () => {
-  const { notifications, unreadCount, loading, fetchNotifications, markRead, markAllRead } = useNotifications();
+  const { notifications, unreadCount, loading, fetchNotifications, markRead, markAllRead, clearNewIndicator } = useNotifications();
   const { colors } = useTheme();
 
-  useEffect(() => { fetchNotifications(); }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchNotifications();
+      clearNewIndicator();
+    }, [fetchNotifications, clearNewIndicator])
+  );
 
   const styles = makeStyles(colors);
 
