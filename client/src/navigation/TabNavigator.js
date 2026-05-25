@@ -71,7 +71,7 @@ const TabIcon = ({ name, focused, color, size, showAlert, styles }) => {
 
 const TabNavigator = ({ userRole }) => {
   const { colors } = useTheme();
-  const { unreadCount, hasNewNotification } = useNotifications();
+  const { unreadCount } = useNotifications();
   const dashType = getDashboardType(userRole);
 
   const DashboardComponent =
@@ -96,7 +96,7 @@ const TabNavigator = ({ userRole }) => {
             focused={focused}
             color={color}
             size={size}
-            showAlert={route.name === 'Notifications' && hasNewNotification}
+            showAlert={route.name === 'Notifications' && unreadCount > 0}
             styles={styles}
           />
         ),
