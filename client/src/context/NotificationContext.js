@@ -1,4 +1,5 @@
 import React, { createContext, useState, useCallback, useEffect, useRef } from 'react';
+import { AppState } from 'react-native';
 import { notificationService } from '../services/notificationService';
 import { useAuth } from '../hooks/useAuth';
 
@@ -11,7 +12,9 @@ export const NotificationProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
   const latestIdRef = useRef(null);
+  const lastUnreadCountRef = useRef(null);
   const initializedRef = useRef(false);
+  const appStateRef = useRef(AppState.currentState);
 
   const fetchNotifications = useCallback(async (params = {}, options = {}) => {
     const { signalNew = false, silent = false } = options;
@@ -21,15 +24,20 @@ export const NotificationProvider = ({ children }) => {
       const { notifications: list, unreadCount: count } = res.data.data;
       const latestId = list?.[0]?.id || null;
 
+      const prevLatestId = latestIdRef.current;
+      const prevUnread = lastUnreadCountRef.current;
+      const hasNewById = Boolean(prevLatestId && latestId && latestId !== prevLatestId);
+      const hasNewByCount = typeof prevUnread === 'number' && count > prevUnread;
+
       if (!initializedRef.current) {
         initializedRef.current = true;
-        latestIdRef.current = latestId;
-      } else if (signalNew && latestId && latestId !== latestIdRef.current) {
+        if (count > 0) setHasNewNotification(true);
+      } else if (signalNew && (hasNewById || hasNewByCount)) {
         setHasNewNotification(true);
-        latestIdRef.current = latestId;
-      } else if (latestId) {
-        latestIdRef.current = latestId;
       }
+
+      latestIdRef.current = latestId;
+      lastUnreadCountRef.current = count;
 
       setNotifications(list);
       setUnreadCount(count);
@@ -42,18 +50,28 @@ export const NotificationProvider = ({ children }) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
     );
-    setUnreadCount((c) => Math.max(0, c - 1));
+    setUnreadCount((c) => {
+      const next = Math.max(0, c - 1);
+      lastUnreadCountRef.current = next;
+      return next;
+    });
   }, []);
 
   const markAllRead = useCallback(async () => {
     await notificationService.markAllRead();
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     setUnreadCount(0);
+    lastUnreadCountRef.current = 0;
   }, []);
 
   const addNotification = useCallback((notif) => {
     setNotifications((prev) => [notif, ...prev]);
-    setUnreadCount((c) => c + 1);
+    setUnreadCount((c) => {
+      const next = c + 1;
+      lastUnreadCountRef.current = next;
+      return next;
+    });
+    setHasNewNotification(true);
   }, []);
 
   const clearNewIndicator = useCallback(() => {
@@ -66,6 +84,7 @@ export const NotificationProvider = ({ children }) => {
       setUnreadCount(0);
       setHasNewNotification(false);
       latestIdRef.current = null;
+      lastUnreadCountRef.current = null;
       initializedRef.current = false;
       return;
     }
@@ -75,7 +94,18 @@ export const NotificationProvider = ({ children }) => {
       fetchNotifications({}, { signalNew: true, silent: true });
     }, 10000);
 
-    return () => clearInterval(intervalId);
+    const appStateSub = AppState.addEventListener('change', (nextState) => {
+      const wasBackground = appStateRef.current === 'inactive' || appStateRef.current === 'background';
+      if (wasBackground && nextState === 'active') {
+        fetchNotifications({}, { signalNew: true, silent: true });
+      }
+      appStateRef.current = nextState;
+    });
+
+    return () => {
+      clearInterval(intervalId);
+      appStateSub.remove();
+    };
   }, [user, fetchNotifications]);
 
   return (
