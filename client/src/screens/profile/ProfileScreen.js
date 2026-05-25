@@ -44,13 +44,6 @@ const ProfileScreen = () => {
     finally { setLoading(false); }
   };
 
-  const confirmLogout = () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive', onPress: logout },
-    ]);
-  };
-
   const styles = makeStyles(colors);
 
   return (
@@ -125,7 +118,7 @@ const ProfileScreen = () => {
         </View>
 
         {/* Sign Out */}
-        <AppButton title="Sign Out" onPress={confirmLogout} variant="danger" style={styles.logoutBtn} />
+        <AppButton title="Sign Out" onPress={logout} variant="danger" style={styles.logoutBtn} />
       </ScrollView>
     </SafeAreaView>
   );
